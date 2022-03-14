@@ -1,4 +1,4 @@
-package com.example.pp_3_1_5_spring_boot_resttemplate.model;
+package com.example.pp_3_1_5_spring_boot_resttemplate.rest.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
