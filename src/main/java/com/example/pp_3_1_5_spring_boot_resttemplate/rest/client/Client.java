@@ -10,63 +10,73 @@
 package com.example.pp_3_1_5_spring_boot_resttemplate.rest.client;
 
 import com.example.pp_3_1_5_spring_boot_resttemplate.rest.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-@Component
 public class Client {
-    private final RestTemplate restTemplate;
-    private final HttpHeaders headers;
-    private String url = "http://94.198.50.185:7081/api/users";
+    private static final String baseUrl = "http://94.198.50.185:7081/api/users";
+    private static RestTemplate restTemplate = new RestTemplate();
+    private static HttpHeaders headers = new HttpHeaders();
+    private static HttpStatus statusCode;
 
-    @Autowired
-    public Client(RestTemplate restTemplate, HttpHeaders headers) {
-        this.restTemplate = restTemplate;
-        this.headers = headers;
-        this.headers.set("Cookie",
-                String.join(";", restTemplate.headForHeaders(url).get("Set-Cookie")));
+    public static String start() {
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Cookie", String.join(";", restTemplate.headForHeaders(baseUrl).get("Set-Cookie")));
+        HttpEntity<Object> requestEntity = new HttpEntity<>(headers);
+        getListUserByExchangeMethod(requestEntity);
+
+        User user = new User(3L,"James", "Brown", (byte) 1);
+        HttpEntity<Object> requestEntityAdd = new HttpEntity<>(user, headers);
+
+        User  userRename = new User(3L, "Thomas", "Shelby", (byte) 1);
+        HttpEntity<Object> requestEntityUpdate = new HttpEntity<>(userRename, headers);
+
+        return "Ответ: " + addUserByExchangeMethod(requestEntityAdd) + updateUserByExchangeMethod(requestEntityUpdate) + deleteUserByExchangeMethod(requestEntity);
     }
 
-    public String getAnswer() {
-        return addUser().getBody() + updateUser().getBody() + deleteUser().getBody();
-    }
-
-    // Получение всех пользователей -  …/api/users ( GET )
-    private List<User> getAllUsers() {
-        ResponseEntity<List<User>> responseEntity = restTemplate.exchange(url, HttpMethod.GET,
-                null, new ParameterizedTypeReference<List<User>>() { });
-        System.out.println(responseEntity.getHeaders());
+    private static String deleteUserByExchangeMethod(HttpEntity<Object> requestEntity) {
+        ResponseEntity<String> responseEntity = restTemplate.exchange(baseUrl + "/3",
+                HttpMethod.DELETE,
+                requestEntity,
+                String.class);
+        statusCode = responseEntity.getStatusCode();
+        System.out.println("status code - " + statusCode);
         return responseEntity.getBody();
     }
 
-    // Добавление пользователя - …/api/users ( POST )
-    private ResponseEntity<String> addUser() {
-        User user = new User(3L, "James", "Brown", (byte) 5);
-        HttpEntity<User> entity = new HttpEntity<>(user, headers);
-        return restTemplate.postForEntity(url, entity, String.class);
+    private static String updateUserByExchangeMethod(HttpEntity<Object> requestEntity) {
+        ResponseEntity<String> responseEntity = restTemplate.exchange(baseUrl,
+                HttpMethod.PUT,
+                requestEntity,
+                String.class);
+        statusCode = responseEntity.getStatusCode();
+        System.out.println("status code - " + statusCode);
+        return responseEntity.getBody();
     }
 
-    // Изменение пользователя - …/api/users ( PUT )
-    private ResponseEntity<String> updateUser() {
-        User user = new User(3L, "Thomas", "Shelby", (byte) 5);
-        HttpEntity<User> entity = new HttpEntity<>(user, headers);
-        return restTemplate.exchange(url, HttpMethod.PUT, entity, String.class, 3);
+    private static String addUserByExchangeMethod(HttpEntity<Object> requestEntity) {
+        ResponseEntity<String> responseEntity = restTemplate.exchange(baseUrl,
+                HttpMethod.POST,
+                requestEntity,
+                String.class);
+        statusCode = responseEntity.getStatusCode();
+        System.out.println("status code - " + statusCode);
+        return responseEntity.getBody();
     }
 
-    // Удаление пользователя - …/api/users /{id} ( DELETE )
-    private ResponseEntity<String> deleteUser() {
-        Map<String, Long> uriVariables = new HashMap<>() {{
-            put("id", 3L);
-        }};
-        HttpEntity<String> entity = new HttpEntity<>(null, headers);
-        return restTemplate.exchange(url + "/{id}", HttpMethod.DELETE, entity, String.class, uriVariables);
+    private static void getListUserByExchangeMethod(HttpEntity<Object> requestEntity) {
+        ResponseEntity<List> responseEntity = restTemplate.exchange(baseUrl,
+                HttpMethod.GET,
+                requestEntity,
+                List.class);
+        statusCode = responseEntity.getStatusCode();
+        System.out.println("status code - " + statusCode);
+        List user = responseEntity.getBody();
+        System.out.println("response body - " + user);
     }
 }
 
