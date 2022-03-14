@@ -44,7 +44,7 @@ public class Client {
                 requestEntity,
                 String.class);
         statusCode = responseEntity.getStatusCode();
-        System.out.println("status code - " + statusCode);
+        System.out.println("status code - " + statusCode  + " ,(deleteUser)");
         return responseEntity.getBody();
     }
 
@@ -54,7 +54,7 @@ public class Client {
                 requestEntity,
                 String.class);
         statusCode = responseEntity.getStatusCode();
-        System.out.println("status code - " + statusCode);
+        System.out.println("status code - " + statusCode + " ,(UpdateUser)");
         return responseEntity.getBody();
     }
 
@@ -64,7 +64,7 @@ public class Client {
                 requestEntity,
                 String.class);
         statusCode = responseEntity.getStatusCode();
-        System.out.println("status code - " + statusCode);
+        System.out.println("status code - " + statusCode + " ,(addUser)");
         return responseEntity.getBody();
     }
 
@@ -74,7 +74,7 @@ public class Client {
                 requestEntity,
                 List.class);
         statusCode = responseEntity.getStatusCode();
-        System.out.println("status code - " + statusCode);
+        System.out.println("status code - " + statusCode + " ,(getList)");
         List user = responseEntity.getBody();
         System.out.println("response body - " + user);
     }
